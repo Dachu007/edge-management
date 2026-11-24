@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI-Augmented Edge Resource Management for Smart Cities
 
 Mini Project – Dharshini S (212224040074), B.E. CSE, Saveetha Engineering College
@@ -106,3 +107,6 @@ The nodes have random run-time slow-downs that the planner cannot see, so the ag
 At normal load, the AI groups most work on N5, the fastest and most energy-efficient node. At higher loads (Load 2–3×) it spreads work to the other nodes.
 
 **Note:** Energy figures are *model-based estimates* (linear idle-to-max power model), not hardware measurements. The whole system is a simulation, not a real city deployment.
+=======
+# edge-management
+>>>>>>> e67d8f5442c4499e4ce9744d796478f480dc707a
