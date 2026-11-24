@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Augmented Edge Resource Manager | Smart City</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">⚡</div>
+    <div>
+      <div class="brand-title">Edge Resource Manager</div>
+      <div class="brand-sub">AI-Augmented · Smart City</div>
+    </div>
+  </div>
+  <nav>
+    <a href="#" data-view="dashboard" class="active">📊 Live Dashboard</a>
+    <a href="#" data-view="submit">📨 Submit Task</a>
+    <a href="#" data-view="compare">⚖️ Policy Comparison</a>
+    <a href="#" data-view="train">🧠 Train AI Agent</a>
+    <a href="#" data-view="tests">✅ Test Cases</a>
+    <a href="#" data-view="log">📜 Decision Log</a>
+    <a href="#" data-view="about">🏙️ About Project</a>
+  </nav>
+</aside>
+
+<main>
+  <!-- ================= LIVE DASHBOARD ================= -->
+  <section id="view-dashboard" class="view active">
+    <header class="page-head">
+      <div>
+        <h1>Live Smart-City Edge Dashboard</h1>
+        <p class="muted">Simulated city workload is allocated to edge nodes in real time. Sim clock: <b id="clock">0.0</b> s</p>
+      </div>
+      <div class="controls">
+        <button id="btn-run" class="btn primary">▶ Start</button>
+        <button id="btn-step" class="btn">Step +1s</button>
+        <button id="btn-reset" class="btn ghost">Reset</button>
+      </div>
+    </header>
+
+    <div class="panel config-bar">
+      <label>Policy
+        <select id="cfg-policy"></select>
+      </label>
+      <label class="switch"><input type="checkbox" id="cfg-learning" checked> AI learning policy enabled</label>
+      <label class="switch"><input type="checkbox" id="cfg-burst"> Rush-hour burst</label>
+      <label>Load <input type="range" id="cfg-rate" min="0.5" max="3" step="0.1" value="1"> <b id="cfg-rate-val">1.0×</b></label>
+      <label>Energy weight <input type="range" id="cfg-energy" min="0" max="1" step="0.05" value="0.2"> <b id="cfg-energy-val">0.20</b></label>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="nodes" id="nodes"></div>
+
+    <div class="grid2">
+      <div class="panel"><h3>CPU utilisation per node (%)</h3><canvas id="chart-live-cpu" height="190"></canvas></div>
+      <div class="panel"><h3>Estimated power draw per node (W)</h3><canvas id="chart-live-power" height="190"></canvas></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3>Recent allocation decisions</h3>
+        <div class="table-wrap small"><table id="tbl-recent"></table></div>
+      </div>
+      <div class="panel">
+        <h3>System events</h3>
+        <ul id="events" class="events"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUBMIT TASK ================= -->
+  <section id="view-submit" class="view">
+    <header class="page-head">
+      <div>
+        <h1>Submit a Task Request</h1>
+        <p class="muted">Send one request from a smart-city application and see how the allocator evaluates every node.</p>
+      </div>
+    </header>
+    <div class="grid-submit">
+      <form id="task-form" class="panel">
+        <h3>Task request</h3>
+        <label>Application / task type
+          <select name="task_type" id="f-type"></select>
+        </label>
+        <div class="row2">
+          <label>Priority
+            <select name="priority" id="f-priority">
+              <option value="">Default</option><option value="1">Low</option>
+              <option value="2">Medium</option><option value="3">High</option>
+            </select>
+          </label>
+          <label>Deadline (ms) <input name="deadline_ms" id="f-deadline" type="number" min="1" placeholder="default"></label>
+        </div>
+        <div class="row2">
+          <label>Work (MI) <input name="work_mi" id="f-work" type="number" min="1" placeholder="random"></label>
+          <label>Memory (GB) <input name="memory_gb" id="f-mem" type="number" step="0.01" min="0" placeholder="random"></label>
+        </div>
+        <label>Data size (MB) <input name="data_mb" id="f-data" type="number" step="0.01" min="0" placeholder="random"></label>
+        <p class="hint" id="f-hint"></p>
+        <button class="btn primary" type="submit">Allocate task</button>
+        <div class="quick">
+          <span class="muted">Quick tests:</span>
+          <button type="button" class="btn tiny" data-quick="emergency">🚑 Emergency</button>
+          <button type="button" class="btn tiny" data-quick="bigmem">💾 128 GB task (TC04)</button>
+          <button type="button" class="btn tiny" data-quick="video">🎥 Heavy video</button>
+        </div>
+      </form>
+      <div class="panel">
+        <h3>Allocation result</h3>
+        <div id="decision" class="decision muted">Submit a task to see the decision.</div>
+        <h3 style="margin-top:18px">Node evaluation trace</h3>
+        <div class="table-wrap"><table id="tbl-trace"></table></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Node administration (simulate faults)</h3>
+      <p class="muted">Take a node offline (it stops reporting → becomes <i>stale</i> after 2 s) or make it send incomplete reports (<i>missing</i> values).</p>
+      <div id="admin-nodes" class="admin-nodes"></div>
+    </div>
+  </section>
+
+  <!-- ================= COMPARE ================= -->
+  <section id="view-compare" class="view">
+    <header class="page-head">
+      <div>
+        <h1>Policy Comparison</h1>
+        <p class="muted">All policies run on the <b>same workload</b> and the <b>same infrastructure</b> (Section 5.2.2).</p>
+      </div>
+    </header>
+    <div class="panel config-bar">
+      <label>Duration (s) <input type="number" id="sim-duration" value="60" min="10" max="300"></label>
+      <label>Seed <input type="number" id="sim-seed" value="1"></label>
+      <label>Load <input type="number" id="sim-rate" value="1.0" step="0.1" min="0.2" max="4"></label>
+      <label class="switch"><input type="checkbox" id="sim-burst" checked> Rush-hour burst</label>
+      <label>Energy weight <input type="number" id="sim-energy" value="0.2" step="0.05" min="0" max="1"></label>
+      <div id="sim-policies" class="checks"></div>
+      <button id="btn-simulate" class="btn primary">Run comparison</button>
+    </div>
+    <div id="sim-status" class="muted"></div>
+
+    <div id="sim-results" class="hidden">
+      <div class="panel">
+        <h3>Results summary</h3>
+        <div class="table-wrap"><table id="tbl-compare"></table></div>
+        <p class="hint">Energy values are model-based estimates (linear idle-to-max power model), not hardware measurements.</p>
+        <div class="downloads" id="downloads"></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Average &amp; P95 completion time (ms)</h3><canvas id="chart-time" height="200"></canvas></div>
+        <div class="panel"><h3>Deadline success (%)</h3><canvas id="chart-deadline" height="200"></canvas></div>
+        <div class="panel"><h3>Task energy (Wh, estimated)</h3><canvas id="chart-energy" height="200"></canvas></div>
+        <div class="panel"><h3>Node utilisation (%) — workload distribution</h3><canvas id="chart-util" height="200"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Deadline success by application (%)</h3>
+        <canvas id="chart-pertype" height="110"></canvas>
+      </div>
+      <div class="panel">
+        <div class="row-head">
+          <h3>CPU utilisation over time</h3>
+          <select id="tl-policy"></select>
+        </div>
+        <canvas id="chart-timeline" height="110"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRAIN ================= -->
+  <section id="view-train" class="view">
+    <header class="page-head">
+      <div>
+        <h1>Train the Q-Learning Agent</h1>
+        <p class="muted">Offline training inside the simulation (Section 3.5). The trained Q-table is saved to <code>models/q_table.json</code>.</p>
+      </div>
+    </header>
+    <div class="panel config-bar">
+      <label>Episodes <input type="number" id="train-eps" value="40" min="5" max="200"></label>
+      <label>Energy weight <input type="number" id="train-energy" value="0.2" step="0.05" min="0" max="1"></label>
+      <button id="btn-train" class="btn primary">Train agent</button>
+      <span id="train-status" class="muted"></span>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Learning curve</h3><canvas id="chart-train" height="200"></canvas></div>
+      <div class="panel">
+        <h3>RL formulation (Section 5.2.1)</h3>
+        <ul class="plain">
+          <li><b>State:</b> task type, candidate node, node queue-delay bucket, predicted deadline feasibility.</li>
+          <li><b>Action:</b> assign the task to one eligible node (deferral when none is feasible).</li>
+          <li><b>Reward:</b> +1 deadline met / −2 missed, − 0.5 × completion ratio, − energy weight × normalised energy, − 0.5 if node overloaded; scaled by priority.</li>
+          <li><b>Policy:</b> tabular Q-learning, ε-greedy exploration (0.3 → 0.02), α = 0.15, γ = 0.3.</li>
+          <li><b>Why learning helps:</b> nodes have run-time variability that the planner cannot see; the agent learns which nodes really deliver on time.</li>
+        </ul>
+        <div id="agent-info" class="muted"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTS ================= -->
+  <section id="view-tests" class="view">
+    <header class="page-head">
+      <div>
+        <h1>System Test Cases</h1>
+        <p class="muted">Test cases TC01–TC07 from Tables 7.3.1 and 7.3.2, executed against the running prototype.</p>
+      </div>
+      <button id="btn-tests" class="btn primary">Run all tests</button>
+    </header>
+    <div class="panel"><div class="table-wrap"><table id="tbl-tests"></table></div></div>
+  </section>
+
+  <!-- ================= LOG ================= -->
+  <section id="view-log" class="view">
+    <header class="page-head">
+      <div>
+        <h1>Decision Log</h1>
+        <p class="muted">Every decision recorded by the Performance Reporter (live system, latest first).</p>
+      </div>
+      <button id="btn-log-refresh" class="btn">Refresh</button>
+    </header>
+    <div class="panel"><div class="table-wrap"><table id="tbl-log"></table></div></div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="view-about" class="view">
+    <header class="page-head">
+      <div>
+        <h1>AI-Augmented Edge Resource Management for Smart Cities</h1>
+      </div>
+    </header>
+    <div class="panel">
+      <h3>System architecture</h3>
+      <div class="arch">
+        <div class="arch-col">
+          <div class="box in">Workload requests<br><small>traffic · surveillance · emergency · environment</small></div>
+          <div class="box in">Edge node data<br><small>CPU · memory · bandwidth · queue · latency · power</small></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="arch-col">
+          <div class="box m">Module 1<br><b>Resource Monitor</b></div>
+          <div class="box m">Module 2<br><b>AI Allocator (Q-learning)</b></div>
+          <div class="box m">Module 3<br><b>Load &amp; Energy Balancer</b></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="arch-col">
+          <div class="box m">Module 4<br><b>Performance Reporter</b></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="arch-col">
+          <div class="box out">Task assigned to node</div>
+          <div class="box out warn">or deferred with capacity warning</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Simulated edge infrastructure</h3>
+        <div class="table-wrap"><table id="tbl-infra"></table></div>
+      </div>
+      <div class="panel">
+        <h3>Smart-city workloads</h3>
+        <div class="table-wrap"><table id="tbl-workloads"></table></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Policies compared</h3>
+      <ul class="plain">
+        <li><b>Fixed mapping</b> – each application always goes to its home node (traffic→N1, surveillance→N2, emergency→N3, environment→N4).</li>
+        <li><b>Round robin</b> – nodes are used in turn.</li>
+        <li><b>Least loaded</b> – node with the lowest CPU utilisation.</li>
+        <li><b>Threshold reactive</b> – home node unless it crosses 80% CPU / 150 ms queue, then least loaded.</li>
+        <li><b>AI (Q-learning)</b> – filters infeasible and overloaded nodes, prefers nodes predicted to meet the deadline, then chooses using the learned Q-values (latency, queue, transfer, energy and reliability).</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
