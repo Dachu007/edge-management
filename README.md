@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 # AI-Augmented Edge Resource Management for Smart Cities
 
-Mini Project – Dharshini S (212224040074), B.E. CSE, Saveetha Engineering College
+Project – Dharshini S (212224040074), B.E. CSE, Saveetha Engineering College
 
 This is a working prototype of the system designed in the Review 1 and Review 2 reports. It has:
 - a Python simulation of 5 smart-city edge nodes
