@@ -1,110 +1,115 @@
 # AI-Augmented Edge Resource Management for Smart Cities
 
-Project – Dharshini S (212224040074), B.E. CSE, Saveetha Engineering College
+An intelligent edge resource management system that uses Q-learning-based task allocation to distribute smart-city workloads across multiple edge nodes. The system monitors node resources, evaluates task requirements, balances workloads, and compares allocation policies to support efficient task execution with reduced latency and energy consumption.
 
-This is a working prototype of the system designed in the Review 1 and Review 2 reports. It has:
-- a Python simulation of 5 smart-city edge nodes
-- a Q-learning (reinforcement learning) task allocator
-- four baseline policies to compare against
-- a web dashboard
+# About
 
----
+AI-Augmented Edge Resource Management for Smart Cities is a Python-based project designed to improve resource allocation in smart-city edge computing environments.Smart-city applications such as traffic monitoring, surveillance systems, emergency services, and environmental monitoring generate different types of workloads. When multiple applications request computing resources simultaneously, some edge servers may become overloaded while other servers remain underutilized.This can increase processing delays, resource wastage, and energy consumption.This project addresses these challenges through an intelligent resource management approach. It simulates multiple edge nodes and uses a Q-learning-based reinforcement learning agent to select suitable nodes for incoming tasks based on their resource availability, workload, latency, deadline requirements, and energy estimates.The application also provides a web-based dashboard to monitor edge-node conditions, submit tasks, compare allocation policies, train the AI agent, and analyze system performance.
 
-## 1. Requirements
-- Python 3.9 or newer
-- VS Code with the **Python** extension (by Microsoft)
-- No internet needed after installing Flask (Chart.js is bundled locally)
+# Features
 
-## 2. Run in VS Code (step by step)
+1. AI-Based Task Allocation: Uses a Q-learning reinforcement learning agent to make intelligent edge-node selection decisions.
 
-1. Extract the zip, then in VS Code use **File → Open Folder → `edge-resource-manager`**.
-2. Open a terminal: **Terminal → New Terminal**.
-3. Create a virtual environment (optional, but recommended):
-   ```bash
-   python -m venv venv
-   # Windows:
-   venv\Scripts\activate
-   # Linux / macOS:
-   source venv/bin/activate
-   ```
-4. Install Flask:
-   ```bash
-   pip install -r requirements.txt
-   ```
-5. Start the app:
-   ```bash
-   python app.py
-   ```
-6. Open **http://127.0.0.1:5000** in your browser.
+2. Resource Monitoring: Monitors CPU utilization, memory, workload, queue length, latency, and power consumption.
 
-To stop the server, press `Ctrl + C` in the terminal.
+3. Workload Balancing: Identifies overloaded nodes and supports better distribution of incoming tasks.
 
-You can also press **F5** in VS Code and choose **"Run Edge Resource Manager (Flask)"**.
+4. Multiple Allocation Policies: Compares the AI-based policy with four baseline allocation policies.
 
-## 3. Run the test cases (TC01 – TC07)
-```bash
-python -m unittest discover tests -v
-```
-You can also open the **Test Cases** page in the web app and click **Run all tests**. It fills in the "Actual Result" and "Pass/Fail" columns of Tables 7.3.1 and 7.3.2.
+5. Live Dashboard: Displays edge-node status, resource utilization, charts, recent decisions, and system events.
 
----
+6. Task Submission: Supports traffic, surveillance, emergency, and environmental monitoring workloads.
 
-## 4. Web pages
+7. AI Agent Training: Allows the Q-learning agent to be trained and stores its Q-table.
 
-| Page | What it shows |
-|---|---|
-| **Live Dashboard** | Real-time city simulation: node CPU, memory, queue, latency and power, live charts, recent decisions and events. You can change the policy, the load, the rush-hour burst, and turn AI learning on or off. |
-| **Submit Task** | Send one request (traffic / surveillance / emergency / environment) and see the evaluation of every node: eligibility, estimated completion time, whether it meets the deadline, and its Q-score. You can also take a node offline or make it send missing values. |
-| **Policy Comparison** | Runs all 5 policies on the same workload. Shows a results table, completion time, deadline success, energy, node utilisation, per-application success and a timeline. CSV decision logs can be downloaded. |
-| **Train AI Agent** | Retrains the Q-learning agent and shows the learning curve. The trained table is saved to `models/q_table.json`. |
-| **Test Cases** | TC01–TC07 from Chapter 7. |
-| **Decision Log** | The Performance Reporter's record of every decision. |
-| **About Project** | Architecture, infrastructure, workloads and policies. |
+8. Performance Analysis: Evaluates task completion time, deadline success, energy estimates, and resource utilization.
 
-## 5. Screenshots for Appendix 2 (Sample Output)
-1. Live Dashboard: click **Start** and wait about 15 s.
-2. Submit Task: click **🚑 Emergency** and then **💾 128 GB task**.
-3. Policy Comparison: click **Run comparison**.
-4. Train AI Agent: click **Train agent**.
-5. Test Cases: click **Run all tests**.
+9. Test Case Execution: Includes seven test cases (TC01–TC07) to check system behavior.
 
----
+ 10. Decision Logging: Maintains records of task allocation decisions and performance results.
 
-## 6. Project structure (matches Chapter 6 modules)
+# Requirements
+
+1.Operating System: Windows 10/11, Ubuntu, or another compatible operating system.
+
+2.Programming Language: Python 3.9 or later.
+
+3.Framework: Flask 2.3 or later.
+
+4.Frontend Technologies: HTML, CSS, and JavaScript.
+
+5.Visualization: Chart.js for dashboard charts.
+
+6.AI Technique: Q-learning (Reinforcement Learning).
+
+7.Development Environment: Visual Studio Code (VS Code)and IDE.
+
+8.Version Control: Git and GitHub.
+
+9.Additional Dependencies: Python packages listed in requirements.txt
+
+# System Architecture
+
+The system follows a feedback-based resource management architecture. Incoming smart-city tasks are evaluated against the current resource conditions of available edge nodes. The AI allocator selects a suitable node, while the monitoring and reporting modules track execution performance.
+
+<img width="623" height="326" alt="image" src="https://github.com/user-attachments/assets/55481d11-6c15-4645-8484-92fa180c3b5f" />
+
 ```
 edge-resource-manager/
-├── app.py                  # Flask web server + REST API
+├── app.py                  
 ├── edge/
-│   ├── models.py           # Task, EdgeNode, ResourceSnapshot (ER diagram entities)
-│   ├── monitor.py          # Module 1 – Resource Monitoring (stale / missing detection)
-│   ├── allocator.py        # Module 2 – AI allocation (Q-learning) + baseline policies
-│   ├── balancer.py         # Module 3 – Load balancing (sustained-overload detection)
-│   ├── reporter.py         # Module 4 – Performance reporting & metrics
-│   ├── simulation.py       # Workload generator, training, policy comparison
-│   └── testcases.py        # TC01–TC07
-├── templates/index.html    # Web page
+│   ├── models.py           
+│   ├── monitor.py         
+│   ├── allocator.py        
+│   ├── balancer.py        
+│   ├── reporter.py        
+│   ├── simulation.py       
+│   └── testcases.py       
+├── templates/index.html    
 ├── static/css/style.css
-├── static/js/app.js        # Front-end logic
-├── static/js/chart.umd.min.js  # Chart.js (bundled, works offline)
-├── models/q_table.json     # Trained Q-table (auto-created on first run)
-├── tests/test_system.py    # unittest runner
+├── static/js/app.js        
+├── static/js/chart.umd.min.js  
+├── models/q_table.json     
+├── tests/test_system.py    
 └── requirements.txt
 ```
 
-## 7. How the AI allocator decides (Section 5.2.1)
-1. Read the latest snapshots. Stale or missing nodes are excluded.
-2. Remove nodes without enough memory or bandwidth. If no node is left, the task is **deferred with a capacity warning**.
-3. Remove nodes in **sustained overload** (as long as at least one other node is left).
-4. Prefer nodes predicted to meet the deadline. The prediction is network latency + transfer time + queue wait + processing time.
-5. Choose the node with the highest **Q-value**:
-   - state = task type, node, queue-delay bucket, deadline feasibility
-   - reward = deadline success, completion time, energy and overload, weighted by priority
-6. If the learning policy is disabled, the **least-loaded fallback** is used and the event is logged.
+# Output
 
-The nodes have random run-time slow-downs that the planner cannot see, so the agent learns from the actual outcomes which nodes are reliable.
+# Output 1 – Live Dashboard
 
-At normal load, the AI groups most work on N5, the fastest and most energy-efficient node. At higher loads (Load 2–3×) it spreads work to the other nodes.
+<img width="1535" height="828" alt="Screenshot 2026-11-24 175734" src="https://github.com/user-attachments/assets/db7101aa-d34f-45de-b7da-736f76bfc533" />
 
-**Note:** Energy figures are *model-based estimates* (linear idle-to-max power model), not hardware measurements. The whole system is a simulation, not a real city deployment.
+# Output 2 – Task Submission
 
+<img width="1535" height="836" alt="Screenshot 2026-11-24 175858" src="https://github.com/user-attachments/assets/4ae38fe4-7929-4fcf-b2ff-69697a5f03cb" />
 
+# Output 3 – Policy Comparison
+
+<img width="1535" height="832" alt="Screenshot 2026-11-24 175832" src="https://github.com/user-attachments/assets/fa42ea5d-088d-48e7-997a-2902b8f2c70c" />
+
+# Output 4 – AI Agent Training
+
+<img width="1535" height="835" alt="Screenshot 2026-11-24 175945" src="https://github.com/user-attachments/assets/f1ee54cb-c8db-471a-926c-9055dd8c2a25" />
+
+# Output 5 – Test Cases
+
+<img width="1535" height="831" alt="Screenshot 2026-11-24 180153" src="https://github.com/user-attachments/assets/163d3349-285d-48dc-81a9-ebfa088f9fd9" />
+
+# Output 6 – Decision Log
+
+<img width="1535" height="831" alt="Screenshot 2026-11-24 175933" src="https://github.com/user-attachments/assets/0ef95da6-a129-47cb-afd1-942d9825f392" />
+
+# Result and Impact
+
+The project demonstrates an approach to efficient resource allocation in smart-city edge computing. It analyzes CPU, memory, bandwidth, queue length, and latency across four edge nodes.
+
+The results help identify overloaded nodes, improve workload distribution, and support better task allocation. The system aims to reduce latency and energy consumption through efficient resource management.
+
+# Articles published / References
+
+1. M. Satyanarayanan, "The Emergence of Edge Computing," IEEE Computer, vol. 50, no. 1, pp. 30–39, 2017. DOI: 10.1109/MC.2017.9.
+
+2. W. Shi, J. Cao, Q. Zhang, Y. Li, and L. Xu, "Edge Computing: Vision and Challenges," IEEE Internet of Things Journal, vol. 3, no. 5, pp. 637–646, 2016. DOI: 10.1109/JIOT.2016.2579198.
+
+3. Y. Mao, C. You, J. Zhang, K. Huang, and K. B. Letaief, "A Survey on Mobile Edge Computing: The Communication Perspective," IEEE Communications Surveys & Tutorials, vol. 19, no. 4, pp. 2322–2358, 2017. DOI: 10.1109/COMST.2017.2745201.
